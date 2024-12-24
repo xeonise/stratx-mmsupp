@@ -289,6 +289,9 @@ local GenerateFunction = {
         appendstrat(`TDS:Option({TowerIndex}, "{OptionName}", "{Value}", {TimerStr})`)
     end,
     Skip = function(Args, Timer, RemoteCheck)
+        if tonumber(GameWave.Text) == 0 then
+            return
+        end
         SetStatus(`Skipped Wave`)
         local TimerStr = table.concat(Timer, ", ")
         appendstrat(`TDS:Skip({TimerStr})`)
@@ -305,10 +308,10 @@ local GenerateFunction = {
         GetMode = DiffTable[Difficulty] or Difficulty
         SetStatus(`Vote {GetMode}`)
     end,
-    SelectLoadout = function(Args)
-        local Name = Args[1]
-        SetStatus(`SelectLoadout Picked`)
-        appendstrat('TDS:SelectLoadout({'..Name..'})')
+    SelectLoadout = function(Args, Timer, RemoteCheck)
+        local LoadoutName = Args[1]
+        SetStatus(`Loadout Selected`)
+        appendstrat(`TDS:SelectLoadout("{LoadoutName}")`)
     end,
 }
 
@@ -362,7 +365,7 @@ for TowerName, Tower in next, ReplicatedStorage.RemoteFunction:InvokeServer("Ses
     end
 end
 writestrat("getgenv().StratCreditsAuthor = \"Optional\"")
-appendstrat("local TDS = loadstring(game:HttpGet(\"https://raw.githubusercontent.com/Sigmanic/Strategies-X/main/TDS/MainSource.lua\", true))()\nTDS:Map(\""..
+appendstrat("local TDS = loadstring(game:HttpGet(\"https://raw.githubusercontent.com/Sigmanic/Strategies-X/refs/heads/main/TDS/MainSource.lua\", true))()\nTDS:Map(\""..
 RSMap.Value.."\", true, \""..RSMode.Value.."\")\nTDS:Loadout({\""..
     table.concat(Recorder.Troops, `", "`) .. if #Recorder.Troops.Golden ~= 0 then "\", [\"Golden\"] = {\""..
     table.concat(Recorder.Troops.Golden, `", "`).."\"}})" else "\"})"

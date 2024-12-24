@@ -50,24 +50,22 @@ Folder.Name = "Map"
 StratXLibrary.LowGraphics = function(bool)
     local GameMode = if Workspace:FindFirstChild("IntermissionLobby") then "Survival" else "Hardcore"
 	local Lobby = if GameMode == "Survival" then "IntermissionLobby" else "HardcoreIntermissionLobby"
-    local Location = if not CheckPlace() then "Environment" elseif Workspace:FindFirstChild(Lobby) then "Environment" else "Map"
+    local Location = if not CheckPlace() then "Lobby" elseif Workspace:FindFirstChild(Lobby) then "Environment" else "Map"
     if Location == "Environment" then
-        if Workspace:FindFirstChild(Lobby) then
-            if not Workspace:FindFirstChild(Lobby):FindFirstChild(Location) then 
-                prints("Waiting Map Loaded to Use LowGraphics")
-                repeat
-                    task.wait()
-                until Workspace:FindFirstChild(Lobby):FindFirstChild(Location)
-                task.wait(1)
-            end
-        elseif not Workspace:FindFirstChild(Lobby) then
-            if not Workspace.NewLobby:FindFirstChild(Location) then 
-                prints("Waiting Map Loaded to Use LowGraphics")
-                repeat
-                    task.wait()
-                until Workspace.NewLobby:FindFirstChild(Location)
-                task.wait(1)
-            end
+        if not Workspace:FindFirstChild(Lobby):FindFirstChild(Location) then
+            prints("Waiting Map Loaded to Use LowGraphics")
+            repeat
+                task.wait()
+            until Workspace:FindFirstChild(Lobby):FindFirstChild(Location)
+            task.wait(1)
+        end
+    elseif Location == "Lobby" then
+        if not Workspace:WaitForChild("NewLobby"):WaitForChild("Areas"):FindFirstChild(Location) then
+            prints("Waiting Map Loaded to Use LowGraphics")
+            repeat
+                task.wait()
+            until Workspace:WaitForChild("NewLobby"):WaitForChild("Areas"):FindFirstChild(Location)
+            task.wait(1)
         end
     elseif Location == "Map" then
         if not Workspace:FindFirstChild(Location) then
@@ -79,20 +77,34 @@ StratXLibrary.LowGraphics = function(bool)
         end
     end
     if bool then
-        if CheckPlace() and not Workspace:FindFirstChild(Lobby) then
-            for i,v in next, Workspace:FindFirstChild(Location):GetChildren() do
-                if Location == "Map" and v.Name == "Paths" then
+        if Location == "Lobby" and not CheckPlace() then
+            for i,v in next, Workspace:WaitForChild("NewLobby"):WaitForChild("Areas")[Location]:GetChildren() do
+                v.Parent = Folder
+            end
+        elseif Location == "Map" and CheckPlace() then
+            for i,v in next, Workspace[Location]:GetChildren() do
+                if v.Name == "Paths" then
                     continue
                 end
                 v.Parent = Folder
             end
-        elseif CheckPlace() and Workspace:FindFirstChild(Lobby) then
-            for i,v in next, Folder:GetChildren() do
-                v.Parent = Workspace:FindFirstChild(Lobby)[Location]
+        elseif Location == "Environment" and CheckPlace() then
+            for i,v in next, Workspace:WaitForChild(Lobby)[Location]:GetChildren() do
+                v.Parent = Folder
             end
-        elseif not CheckPlace() and getgenv().DefaultCam ~= 1 then
+        end
+    else
+        if Location == "Lobby" and not CheckPlace() then
             for i,v in next, Folder:GetChildren() do
-                v.Parent = Workspace.NewLobby[Location]
+                v.Parent = Workspace:WaitForChild("NewLobby"):WaitForChild("Areas")[Location]
+            end
+        elseif Location == "Map" and CheckPlace() then
+            for i,v in next, Folder:GetChildren() do
+                v.Parent = Workspace[Location]
+            end
+        elseif Location == "Environment" and CheckPlace() then
+            for i,v in next, Folder:GetChildren() do
+                v.Parent = Workspace:WaitForChild(Lobby)[Location]
             end
         end
     end
