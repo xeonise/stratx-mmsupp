@@ -1,12 +1,6 @@
-local easyBlackList = {
-	676865455,
-	5089488842,
-	1253728146,
-	6135463763,
-	7733419159,
-	2629007143
-}
-if table.find(easyBlackList, game:GetService("Players").LocalPlayer.UserId) then return end
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Sigmanic/Strategies-X/refs/heads/main/TDS/Maintenance.lua"))
+if getgenv().Maintenance then return end
+
 if getgenv().StratXLibrary and getgenv().StratXLibrary.Executed then
 	if StratXLibrary.Strat[#StratXLibrary.Strat].Active then
 		return Strat.new()
