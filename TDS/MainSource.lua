@@ -1028,7 +1028,7 @@ if not CheckPlace() then
 		LocalPlayer.Character.HumanoidRootPart.CFrame = Part.CFrame + Vector3.new(0, 3.5, 0)
 	end)
 
-	ReplicatedStorage:WaitForChild("Network"):WaitForChild("DailySpin"):WaitForChild("RedeemReward"):InvokeServer()
+	--ReplicatedStorage:WaitForChild("Network"):WaitForChild("DailySpin"):WaitForChild("RedeemReward"):InvokeServer()
 
 	UI.EquipStatus = maintab:DropSection("Troops Loadout Status")
 	UI.TowersStatus = {
