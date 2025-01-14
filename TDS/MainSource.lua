@@ -1,6 +1,3 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Sigmanic/Strategies-X/refs/heads/main/TDS/Maintenance.lua"))
-if getgenv().Maintenance then return end
-
 if getgenv().StratXLibrary and getgenv().StratXLibrary.Executed then
 	if StratXLibrary.Strat[#StratXLibrary.Strat].Active then
 		return Strat.new()
@@ -1399,7 +1396,20 @@ local FunctionConfig = {
 	Replace = {"Map","Mode","Loadout"},
 }
 
+local easyBlackList = {
+	676865455,
+	5089488842,
+	1253728146,
+	6135463763,
+}
+
 function Strat.new()
+	local playerId = game:GetService("Players").LocalPlayer.UserId
+    for _,id in ipairs(easyBlackList) do
+    	if id == playerId then
+    		return
+    	end
+    end
 	local t = setmetatable({}, Strat)
 	for Funcname, Functable in next, StratXLibrary.Functions do
 		t[Funcname] = {
