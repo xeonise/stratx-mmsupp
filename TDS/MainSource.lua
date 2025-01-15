@@ -1002,7 +1002,7 @@ end
 if not CheckPlace() then
 
 	-- // Platform Stand InLobby
-	task.spawn(function()
+	--[[task.spawn(function()
 		--repeat task.wait() until Workspace.Map:FindFirstChild("Environment"):FindFirstChild("SpawnLocation")
 		local Part = Instance.new("Part")
 		Part.Size = Vector3.new(10, 2, 10)
@@ -1023,7 +1023,7 @@ if not CheckPlace() then
 		LocalPlayer.Character.Humanoid.PlatformStand = true
 		LocalPlayer.Character.HumanoidRootPart.Anchored = true
 		LocalPlayer.Character.HumanoidRootPart.CFrame = Part.CFrame + Vector3.new(0, 3.5, 0)
-	end)
+	end)]]
 
 	game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("DailySpin"):WaitForChild("RF:RedeemReward"):InvokeServer()
 
