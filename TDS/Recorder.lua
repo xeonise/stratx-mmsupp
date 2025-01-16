@@ -224,8 +224,8 @@ local GenerateFunction = {
             ["Rotation"] = Rotation,
         }
         --The fuck does this thing even do
-        local upgradeHandler = require(ReplicatedStorage.Client.Modules.Game.Interface.Elements.Upgrade.upgradeHandler)
-        upgradeHandler:selectTroop(RemoteCheck)
+        --local upgradeHandler = require(ReplicatedStorage.Client.Modules.Game.Interface.Elements.Upgrade.upgradeHandler)
+        --upgradeHandler:selectTroop(RemoteCheck)
         SetStatus(`Placed {TowerName}`)
         if TowerName == "Farm" then
             table.insert(FarmsID, RemoteCheck.Name)
