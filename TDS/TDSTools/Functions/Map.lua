@@ -37,14 +37,7 @@ local ElevatorSettings = {
     ["FrostInvasion"] = {Enabled = false}
 }
 
-local WeeklyChallenge = {
-    "BackToBasics",
-    --[["JailedTowers",
-    "Juggernaut",
-    "Legion",
-    "OopsAllSlimes",
-    "Vanguard"]]
-}
+local WeeklyChallenge = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("ReactLobbyQuests"):WaitForChild("Frame"):WaitForChild("challenges"):WaitForChild("currentChallenge"):WaitForChild("content"):WaitForChild("banner"):WaitForChild("title").Text
 
 return function(self, p1)
     local tableinfo = p1
