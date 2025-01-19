@@ -59,7 +59,7 @@ return function(self, p1)
             task.cancel(v)
         elseif string.find(typeof(v):lower(),"rbxscript") then
             v:Disconnect()
-            RemoteFunction:InvokeServer("Elevators", "Leave")
+            --RemoteFunction:InvokeServer("Elevators", "Leave")
         end
     end
     MapGlobal.JoiningCheck = false
@@ -83,6 +83,8 @@ return function(self, p1)
             ConsoleInfo("Map Selected: "..GameMapName..", ".."Mode: "..Mode..", ".."Solo Only: "..tostring(Solo))
             return
         end
+        local EnterRemote = ReplicatedStorage.Network.Elevators["RF:Enter"]
+        local LeaveRemote = ReplicatedStorage.Network.Elevators["RF:Leave"]
         local Elevators = {
             ["Survival"] = {},
             ["Hardcore"] = {},
@@ -184,22 +186,14 @@ return function(self, p1)
                 prints("Teleporting To Matchmaking Place")
                 return
             end
-            --[[local Passed, ElevatorType = pcall(function()
-				return require(v.Settings).Type
-			end)
-			if not Passed then
-				ElevatorType = if v:GetAttribute("Level") == 50 then "Hardcore" else "Survival"
-			end]]
             local ElevatorType = v:GetAttribute("Type")
 			if not Elevators[ElevatorType] then
 				Elevators[ElevatorType] = {}
 			end
 			table.insert(Elevators[ElevatorType],{
 				["Object"] = v,
-				["MapName"] = v:GetAttribute("Map"),
-				["Time"] = v:GetAttribute("Timer"),
-				["Playing"] = v:GetAttribute("Players"),
-				["Mode"] = ElevatorType,
+				["Type"] = ElevatorType,
+                ["Capacity"] = v:GetAttribute("Capacity"),
 			})
         end
         --prints("Found",#Elevators,"Elevators")
@@ -212,37 +206,7 @@ return function(self, p1)
                 if not Check.Enabled then
                     continue
                 end
-                local ElevatorEnter = ReplicatedStorage:WaitForChild("Network"):WaitForChild("Elevators"):WaitForChild("Enter")
-                local ElevatorLeave = ReplicatedStorage:WaitForChild("Network"):WaitForChild("Elevators"):WaitForChild("Leave")
                 --Changing Map [[NO LONGER EXIST]]
-                --[[if Check.ChangeMap then
-                    ElevatorSettings[Name].ChangeMap = false
-                    task.wait()
-                    task.spawn(function()
-                        for i,v in ipairs(Elevators[Name]) do
-                            task.wait(ElevatorSettings[Name].WaitTimeToChange)
-                            if MapGlobal.JoiningCheck then
-                                repeat task.wait() until MapGlobal.JoiningCheck == false
-                            end
-                            local ModeElevator = v["Object"]:GetAttribute("Type")
-                            local MapElevator = v["Object"]:GetAttribute("Map")
-                            local PlayersElevator = v["Object"]:GetAttribute("Players")
-                            local TimerElevator = v["Object"]:GetAttribute("Timer")
-                            local MapTableName = MapName..":"..Mode
-                            if not MapGlobal[MapTableName] and PlayersElevator == 0 and not MapGlobal.JoiningCheck then
-                                MapGlobal.ChangeCheck = true
-                                prints("Changing Elevator",i)
-                                ElevatorEnter:InvokeServer(v["Object"])
-                                task.wait(.8)
-                                ElevatorLeave:InvokeServer()
-                                task.wait(.1)
-                                MapGlobal.ChangeCheck = false
-                            end
-                        end
-                        task.wait()
-                        ElevatorSettings[Name].ChangeMap = true
-                    end)
-                end]]
                 --Joining Map
                 if Check.JoinMap then
                     ElevatorSettings[Name].JoinMap = false
@@ -251,85 +215,89 @@ return function(self, p1)
                         for i,v in ipairs(Elevators[Name]) do
                             task.wait(ElevatorSettings[Name].WaitTimeToJoin)
                             UI.JoiningStatus.Text = "Trying Elevator: " ..tostring(i)
-                            local ModeElevator = v["Object"]:GetAttribute("Type")
-                            local MapElevator = v["Object"]:GetAttribute("Map")
-                            local PlayersElevator = v["Object"]:GetAttribute("Players")
-                            local TimerElevator = v["Object"]:GetAttribute("Timer")
+                            local MapElevator = v.Object:GetAttribute("Map")
+                            local PlayersElevator = v.Object:GetAttribute("Players")
+                            local TimerElevator = v.Object:GetAttribute("Timer")
                             UI.MapFind.Text = "Map: "..MapElevator
                             UI.CurrentPlayer.Text = "Player Joined: "..PlayersElevator
-                            prints("Checking Elevator",i,"Info [ Map:","\""..MapElevator.."\"",", Players Joined:","\""..PlayersElevator.."\"",", Mode:",ModeElevator,"]")
-                            local MapTableName = MapName..":"..Mode
+                            prints(`Checking Elevator {i} [{MapElevator}, {PlayersElevator}, {v.Type}]`)
+                            local MapTableName = MapElevator..":"..v.Type
                             local MapTable = MapGlobal[MapTableName]
-                            if MapTable and TimerElevator > 5 and PlayersElevator < 4 then
-                                if MapTable.Solo and PlayersElevator ~= 0 then
-                                    continue
-                                end
-                                local MapIndex = MapTable.Index
-                                if StratXLibrary.Strat[MapIndex].Loadout and not StratXLibrary.Strat[MapIndex].Loadout.AllowTeleport then
-                                    prints("Waiting Loadout Allowed")
-                                    repeat task.wait() until StratXLibrary.Strat[MapIndex].Loadout.AllowTeleport
-                                end
-                                if MapGlobal.JoiningCheck or MapGlobal.ChangeCheck then -- or not self.Loadout.AllowTeleport then
-                                    repeat task.wait()
-                                    until MapGlobal.JoiningCheck == false and MapGlobal.ChangeCheck == false --and self.Loadout.AllowTeleport
-                                end
-                                MapGlobal.JoiningCheck = true
-
-                                ElevatorEnter:InvokeServer(v["Object"])
-                                UI.JoiningStatus.Text = "Joined Elevator: " ..tostring(i)
-                                prints("Joined Elevator",i)
-
-                                local LoadoutInfo = StratXLibrary.Strat[MapIndex].Loadout.Lists[#StratXLibrary.Strat[MapIndex].Loadout.Lists]
-                                LoadoutInfo.AllowEquip = true
-                                LoadoutInfo.SkipCheck = true
-                                print("Loadout Selecting")
-                                Functions.Loadout(StratXLibrary.Strat[MapIndex],LoadoutInfo)
-
-                                MapGlobal.ConnectionEvent = v:GetAttribute("Timer").Changed:Connect(function()
-                                    local MapTableName = MapElevator..":"..ModeElevator
-                                    UI.MapFind.Text = "Map: "..MapElevator
-                                    UI.CurrentPlayer.Text = "Player Joined: "..PlayersElevator
-                                    UI.TimerLeft.Text = "Time Left: "..tostring(TimerElevator)
-                                    prints("Time Left: ",TimerElevator)
-                                    --Scenario: Player Died
-                                    if not (LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character:FindFirstChild("Humanoid")) then
-                                        print("Event Disconnected 3")
-                                        MapGlobal.ConnectionEvent:Disconnect()
-                                        UI.JoiningStatus.Text = "Player Died. Rejoining Elevator"
-                                        prints("Player Died. Rejoining Elevator")
-                                        ElevatorLeave:InvokeServer()
-                                        UI.TimerLeft.Text = "Time Left: NaN"
-                                        repeat task.wait() until LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character:FindFirstChild("Humanoid")
-                                        MapGlobal.JoiningCheck = false
-                                        return
-                                    end
-                                    if TimerElevator > 0 and (not MapGlobal[MapTableName] or (MapGlobal[MapTableName].Solo and PlayersElevator > 1)) then
-                                        print("Event Disconnected 1")
-                                        MapGlobal.ConnectionEvent:Disconnect()
-                                        local Text = (not MapGlobal[MapTableName] and "Map Has Been Changed") or ((MapGlobal[MapTableName].Solo and PlayersElevator > 1) and "Someone Has Joined") or "Error"
-                                        ElevatorLeave:InvokeServer()
-                                        UI.JoiningStatus.Text = Text..", Leaving Elevator "..tostring(i)
-                                        prints(Text..", Leaving Elevator",i,"Map:","\""..MapElevator.."\"",", Players Joined:","\""..PlayersElevator.."\"",", Mode:",ModeElevator)
-                                        UI.TimerLeft.Text = "Time Left: NaN"
-                                        MapGlobal.JoiningCheck = false
-                                        return
-                                    end
-                                    if TimerElevator == 0 then
-                                        print("Event Disconnected 2")
-                                        MapGlobal.ConnectionEvent:Disconnect()
-                                        UI.JoiningStatus.Text = "Teleporting To Match"
-                                        task.wait(60)
-                                        UI.JoiningStatus.Text = "Rejoining Elevator"
-                                        prints("Rejoining Elevator")
-                                        ElevatorLeave:InvokeServer()
-                                        UI.TimerLeft.Text = "Time Left: NaN"
-                                        MapGlobal.JoiningCheck = false
-                                        return
-                                    end
-                                    ElevatorEnter:InvokeServer(v["Object"])
-                                end)
-                                repeat task.wait() until MapGlobal.JoiningCheck == false
+                            if not MapTable or PlayersElevator >= v.Capacity then
+                                continue
                             end
+                            if MapTable.Solo and PlayersElevator ~= 0 then
+                                continue
+                            end
+                            local MapIndex = MapTable.Index
+                            if StratXLibrary.Strat[MapIndex].Loadout and not StratXLibrary.Strat[MapIndex].Loadout.AllowTeleport then
+                                prints("Waiting Loadout Allowed")
+                                repeat task.wait() until StratXLibrary.Strat[MapIndex].Loadout.AllowTeleport
+                            end
+                            if MapGlobal.JoiningCheck or MapGlobal.ChangeCheck then -- or not self.Loadout.AllowTeleport then
+                                repeat task.wait()
+                                until MapGlobal.JoiningCheck == false and MapGlobal.ChangeCheck == false --and self.Loadout.AllowTeleport
+                            end
+                            MapGlobal.JoiningCheck = true
+
+                            EnterRemote:InvokeServer(v.Object)
+                            UI.JoiningStatus.Text = "Joined Elevator: " ..tostring(i)
+                            prints("Joined Elevator",i)
+
+                            local LoadoutInfo = StratXLibrary.Strat[MapIndex].Loadout.Lists[#StratXLibrary.Strat[MapIndex].Loadout.Lists]
+                            LoadoutInfo.AllowEquip = true
+                            LoadoutInfo.SkipCheck = true
+                            print("Loadout Selecting")
+                            Functions.Loadout(StratXLibrary.Strat[MapIndex],LoadoutInfo)
+
+                            MapGlobal.ConnectionEvent = v.Object:GetAttributeChangedSignal("Timer"):Connect(function()
+                                local MapElevator = v.Object:GetAttribute("Map")
+                                local PlayersElevator = v.Object:GetAttribute("Players")
+                                local TimerElevator = v.Object:GetAttribute("Timer")
+                                local MapTableName = MapElevator..":"..v.Type
+                                UI.MapFind.Text = "Map: "..MapElevator
+                                UI.CurrentPlayer.Text = "Player Joined: "..PlayersElevator
+                                UI.TimerLeft.Text = "Time Left: "..tostring(TimerElevator)
+                                prints("Time Left: ",TimerElevator)
+                                --Scenario: Player Died
+                                if not (LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character:FindFirstChild("Humanoid")) then
+                                    print("Event Disconnected 3")
+                                    MapGlobal.ConnectionEvent:Disconnect()
+                                    UI.JoiningStatus.Text = "Player Died. Rejoining Elevator"
+                                    prints("Player Died. Rejoining Elevator")
+                                    LeaveRemote:InvokeServer()
+                                    UI.TimerLeft.Text = "Time Left: NaN"
+                                    repeat task.wait() until LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character:FindFirstChild("Humanoid")
+                                    MapGlobal.JoiningCheck = false
+                                    return
+                                end
+                                if TimerElevator > 0 and (not MapGlobal[MapTableName] or (MapGlobal[MapTableName].Solo and PlayersElevator > 1)) then
+                                    print("Event Disconnected 1")
+                                    MapGlobal.ConnectionEvent:Disconnect()
+                                    local Text = (not MapGlobal[MapTableName] and "Map Has Been Changed") or ((MapGlobal[MapTableName].Solo and PlayersElevator > 1) and "Someone Has Joined") or "Error"
+                                    LeaveRemote:InvokeServer()
+                                    UI.JoiningStatus.Text = Text..", Leaving Elevator "..tostring(i)
+                                    --prints(Text..", Leaving Elevator",i,"Map:","\""..MapElevator.."\"",", Players Joined:","\""..PlayersElevator.."\"",", Mode:",ModeElevator)
+                                    prints(`{Text}. Leaving Elevator {i} [{MapElevator}, {PlayersElevator}, {v.Type}]`)
+                                    UI.TimerLeft.Text = "Time Left: NaN"
+                                    MapGlobal.JoiningCheck = false
+                                    return
+                                end
+                                if TimerElevator == 0 then
+                                    print("Event Disconnected 2")
+                                    MapGlobal.ConnectionEvent:Disconnect()
+                                    UI.JoiningStatus.Text = "Teleporting To Match"
+                                    task.wait(60)
+                                    UI.JoiningStatus.Text = "Rejoining Elevator"
+                                    prints("Rejoining Elevator")
+                                    LeaveRemote:InvokeServer()
+                                    UI.TimerLeft.Text = "Time Left: NaN"
+                                    MapGlobal.JoiningCheck = false
+                                    return
+                                end
+                                EnterRemote:InvokeServer(v.Object)
+                            end)
+                            repeat task.wait() until MapGlobal.JoiningCheck == false
                             task.wait(.2)
                         end
                         ElevatorSettings[Name].JoinMap = true

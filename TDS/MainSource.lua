@@ -6,7 +6,11 @@ if getgenv().StratXLibrary and getgenv().StratXLibrary.Executed then
 	end
 end
 
-local Version = "Version: 0.3.21 [Alpha]"
+if not game:IsLoaded() then
+	game["Loaded"]:Wait()
+end
+
+local Version = "Version: 0.3.22 [Alpha]"
 local Items = {
 	Enabled = true,
 	Name = {"Bell", "Lorebook"}
@@ -82,12 +86,6 @@ StratXLibrary.UtilitiesConfig = {
 	},
 }
 
-if not game:IsLoaded() then
-	game["Loaded"]:Wait()
-    --[[if identifyexecutor and identifyexecutor() == "Krampus" then
-        task.wait(3.5)
-    end]]
-end
 local SpoofEvent = {}
 if GameSpoof then
 	function SpoofEvent:InvokeServer(...)
@@ -337,63 +335,6 @@ function CheckPlace()
 end
 
 loadstring(game:HttpGet(MainLink.."TDSTools/LowGraphics.lua", true))()
-
---[[local GameInfo
-getgenv().GetGameState = function()
-	if not CheckPlace() then
-		return
-	end
-	if GameInfo then
-		return GameInfo
-	end
-	repeat
-		for i,v in next, ReplicatedStorage.StateReplicators:GetChildren() do
-			if v:GetAttribute("TimeScale") then
-				GameInfo = v
-				return v
-			end
-		end
-		task.wait()
-	until GameInfo
-end
-
-local VoteState
-getgenv().GetVoteState = function()
-	if not CheckPlace() then
-		return
-	end
-	if VoteState then
-		return VoteState
-	end
-	repeat
-		for i,v in next, ReplicatedStorage.StateReplicators:GetChildren() do
-			if v:GetAttribute("MaxVotes") then
-				VoteState = v
-				return v
-			end
-		end
-		task.wait()
-	until VoteState
-end
-
-local PlayerState
-getgenv().GetPlayerState = function()
-	if not CheckPlace() then
-		return
-	end
-	if PlayerState then
-		return PlayerState
-	end
-	repeat
-		for i,v in next, ReplicatedStorage.StateReplicators:GetChildren() do
-			if typeof(v:GetAttribute("UserId")) == "number" and v:GetAttribute("UserId") == LocalPlayer.UserId then
-				PlayerState = v
-				return v
-			end
-		end
-		task.wait()
-	until PlayerState
-end]]
 
 local TimerCheck = false
 function CheckTimer(bool)
