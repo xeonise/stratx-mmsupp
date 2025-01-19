@@ -37,8 +37,6 @@ local ElevatorSettings = {
     ["FrostInvasion"] = {Enabled = false}
 }
 
-local WeeklyChallenge = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("ReactLobbyQuests"):WaitForChild("Frame"):WaitForChild("challenges"):WaitForChild("currentChallenge"):WaitForChild("content"):WaitForChild("banner"):WaitForChild("title").Text
-
 return function(self, p1)
     local tableinfo = p1
     local MapName = tableinfo["Map"]
@@ -133,6 +131,7 @@ return function(self, p1)
                 elseif SpecialTable.mode == "Event" then
                     RemoteFunction:InvokeServer("EventMissions","Start", SpecialTable.part)
                 elseif getgenv().WeeklyChallenge then
+                    local WeeklyChallenge = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("ReactLobbyQuests"):WaitForChild("Frame"):WaitForChild("challenges"):WaitForChild("currentChallenge"):WaitForChild("content"):WaitForChild("banner"):WaitForChild("title").Text
                     RemoteFunction:InvokeServer("Multiplayer","v2:start",{
                         ["mode"] = "weeklyChallengeMap",
                         ["count"] = 1,
