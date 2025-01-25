@@ -706,8 +706,8 @@ if CheckPlace() then
 		local Rewards = Info:WaitForChild("rewards")
 		function CheckReward()
 			local RewardType, RewardAmount
-			repeat task.wait() until Rewards:FindFirstChild(1) and Rewards:FindFirstChild(2) -- Rewards[1] and Rewards[2]
-			--if Rewards:FindFirstChild(2) then -- If Rewards[2] Found
+			repeat task.wait() until Rewards:FindFirstChild(1)-- Rewards[1]
+			if Rewards:FindFirstChild(2) then -- If Rewards[2] Found
          		for i,v in ipairs(Rewards:GetChildren()) do
          			if v:IsA("Frame") then
          				if v:WaitForChild("content"):FindFirstChild("icon"):IsA("ImageLabel") then
@@ -722,7 +722,8 @@ if CheckPlace() then
          				end
          			end
          		end
-     		--end
+     		end
+			return {RewardType, RewardAmount}
 		end
 		warn("Connected?")
 		StratXLibrary.SignalMatchEnd = MatchGui:GetPropertyChangedSignal("Visible"):Connect(function()
@@ -737,7 +738,9 @@ if CheckPlace() then
 			local PlayerInfo = StratXLibrary.UI.PlayerInfo
 			local GetRewardInfo = CheckReward()
 			PlayerInfo.Property[MatchGui:WaitForChild("banner"):WaitForChild("textLabel").Text == "TRIUMPH!" and "Triumphs" or "Loses"] += 1
-			PlayerInfo.Property[GetRewardInfo[1]] += GetRewardInfo[2]
+			if Rewards:FindFirstChild(2) then
+			    PlayerInfo.Property[GetRewardInfo[1]] += GetRewardInfo[2]
+			end
 			--[[for i,v in next, PlayerInfo.Property do
 				PlayerInfo[i].Text = `{i}: {v}`
 			end]]
