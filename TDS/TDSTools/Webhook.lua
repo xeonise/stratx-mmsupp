@@ -242,7 +242,7 @@ Embed.AddField("Won Bells:",WonPickups)
 
 repeat
 	task.wait()
-until (Rewards:FindFirstChild("1") ~= nil and Rewards:FindFirstChild("2") ~= nil) or (ToSurpass < tick())
+until (Rewards:FindFirstChild("1") ~= nil) or (ToSurpass < tick())
 
 for i , v in next, Rewards:GetChildren() do
 	if v:IsA("Frame") then
