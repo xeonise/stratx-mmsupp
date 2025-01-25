@@ -1327,7 +1327,6 @@ local easyBlackList = {
 	5089488842,
 	1253728146,
 	6135463763,
-	7733419159,
 }
 
 function Strat.new()
