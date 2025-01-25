@@ -167,15 +167,6 @@ local SpecialGameMode = {
     --The Hunt Event Maps [NO LONGER EXIST IN GAME FILES]
 }
 
-local WeeklyChallenge = {
-    "BackToBasics",
-    --[["JailedTowers",
-    "Juggernaut",
-    "Legion",
-    "OopsAllSlimes",
-    "Vanguard"]]
-}
-
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -392,14 +383,14 @@ function ConvertTimer(number : number)
 	return math.floor(number/60), number % 60
 end
 
-function SafeTeleport(Remote)
+function SafeTeleport(remote)
     local attemptIndex = 0
     local success, result
     local ATTEMPT_LIMIT = 25
     local RETRY_DELAY = 5
     repeat
         success, result = pcall(function()
-            return Remote
+            return remote
         end)
         attemptIndex += 1
         if not success then
@@ -715,41 +706,29 @@ if CheckPlace() then
 		local Rewards = Info:WaitForChild("rewards")
 		function CheckReward()
 			local RewardType, RewardAmount
-
-			repeat task.wait() until Rewards:FindFirstChild(1) and Rewards:FindFirstChild(2)--Rewards[1] and Rewards[2]
-			for i , v in ipairs(Rewards:GetChildren()) do
-				if v:IsA("Frame") then
-					if v:WaitForChild("content"):FindFirstChild("icon"):IsA("ImageLabel") then
-						if v:WaitForChild("content"):FindFirstChild("icon").Image == "rbxassetid://5870325376" then
-							RewardType = "Coins"
-							RewardAmount = tonumber(v.content.textLabel.Text)
-							break
-						else
-							RewardType = "Gems"
-							RewardAmount = tonumber(v.content.textLabel.Text)
-						end
-					end
-				end
-			end
-			--[[	
-			if Rewards[2]:WaitForChild("content"):WaitForChild("icon").Image == "rbxassetid://5870325376" then
-               			
-           		end
-															
-			if GetPlayerState():GetAttribute("CoinsReward") then
-				RewardType = "Coins"
-				RewardAmount = GetPlayerState():GetAttribute("CoinsReward")
-			else
-				RewardType = "Gems"
-				RewardAmount = GetPlayerState():GetAttribute("GemsReward")
-			end
-			]]
-			return {RewardType, RewardAmount}
+			repeat task.wait() until Rewards:FindFirstChild(1) -- Rewards[1]
+			if Rewards:FindFirstChild(2) then -- If Rewards[2] Found
+         		for i,v in ipairs(Rewards:GetChildren()) do
+         			if v:IsA("Frame") then
+         				if v:WaitForChild("content"):FindFirstChild("icon"):IsA("ImageLabel") then
+         					if v:WaitForChild("content"):FindFirstChild("icon").Image == "rbxassetid://5870325376" then
+         						RewardType = "Coins"
+         						RewardAmount = tonumber(v.content.textLabel.Text)
+         						break
+         					elseif v:WaitForChild("content"):FindFirstChild("icon").Image == "rbxassetid://5870383867" then
+         						RewardType = "Gems"
+         						RewardAmount = tonumber(v.content.textLabel.Text)
+         					end
+         				end
+         			end
+         		end
+     		end
 		end
 		warn("Connected?")
 		StratXLibrary.SignalMatchEnd = MatchGui:GetPropertyChangedSignal("Visible"):Connect(function()
 			warn("Connection Ran!?")
 			prints("GameOver Changed")
+			local Remote
 			if not MatchGui.Visible then
 				return
 			end
@@ -758,7 +737,9 @@ if CheckPlace() then
 			local PlayerInfo = StratXLibrary.UI.PlayerInfo
 			local GetRewardInfo = CheckReward()
 			PlayerInfo.Property[MatchGui:WaitForChild("banner"):WaitForChild("textLabel").Text == "TRIUMPH!" and "Triumphs" or "Loses"] += 1
-			PlayerInfo.Property[GetRewardInfo[1]] += GetRewardInfo[2]
+			if Rewards:FindFirstChild(2) then
+			    PlayerInfo.Property[GetRewardInfo[1]] += GetRewardInfo[2]
+			end
 			--[[for i,v in next, PlayerInfo.Property do
 				PlayerInfo[i].Text = `{i}: {v}`
 			end]]
@@ -775,6 +756,10 @@ if CheckPlace() then
 			end
 			prints(UtilitiesConfig.RestartMatch,StratXLibrary.RejoinLobby)
 			prints("GameOver Changed2")
+			if RSMap.Value == "Tutorial" then
+				Remote = TeleportHandler(3260590327,2,7)
+				SafeTeleport(Remote)
+			end
 			if UtilitiesConfig.RestartMatch and RSHealthCurrent.Value == 0 then --StratXLibrary.RestartCount <= UtilitiesConfig.RestartTimes
 				prints(`Match Lose. Strat Will Restart Shortly`)
 				StratXLibrary.ReadyState = false
@@ -870,8 +855,14 @@ if CheckPlace() then
 				prints("Starting a New Match")
 				for i,v in ipairs(StratXLibrary.Strat) do
 					local MapInStrat = v.Map.Lists[#v.Map.Lists] and v.Map.Lists[#v.Map.Lists].Map
-					local Remote
-					if table.find(SpecialMaps, MapInStrat) then
+					if getgenv().WeeklyChallenge then
+						Remote = RemoteFunction:InvokeServer("Multiplayer","v2:start",{
+							["mode"] = "weeklyChallengeMap",
+							["count"] = 1,
+							["challenge"] = getgenv().WeeklyChallenge,
+						})
+						SafeTeleport(Remote)
+					elseif table.find(SpecialMaps, MapInStrat) then
 						local SpecialTable = SpecialGameMode[MapInStrat]
     					if SpecialTable.mode == "halloween2024" then
 							Remote = RemoteFunction:InvokeServer("Multiplayer","v2:start",{
@@ -893,13 +884,6 @@ if CheckPlace() then
 								["difficulty"] = if getgenv().EventEasyMode then "Easy" else "Hard",
 								["mode"] = SpecialTable.mode,
 								["count"] = 1,
-							})
-							SafeTeleport(Remote)
-						elseif getgenv().WeeklyChallenge then
-							Remote = RemoteFunction:InvokeServer("Multiplayer","v2:start",{
-								["mode"] = "weeklyChallengeMap",
-								["count"] = 1,
-								["challenge"] = WeeklyChallenge,
 							})
 							SafeTeleport(Remote)
     					elseif SpecialTable.mode == "Event" then
@@ -1342,6 +1326,7 @@ local easyBlackList = {
 	5089488842,
 	1253728146,
 	6135463763,
+	7733419159,
 }
 
 function Strat.new()

@@ -34,7 +34,8 @@ local ElevatorSettings = {
     ["Halloween2024"] = {Enabled = false},
     ["PlsDonate"] = {Enabled = false},
     ["Event"] = {Enabled = false},
-    ["FrostInvasion"] = {Enabled = false}
+    ["FrostInvasion"] = {Enabled = false},
+    ["Special"] = {Enabled = false},
 }
 
 return function(self, p1)
@@ -95,7 +96,15 @@ return function(self, p1)
             return
         end
         for i,v in next, Workspace.Elevators:GetChildren() do
-            if SpecialGameMode[MapName] then
+            if getgenv().WeeklyChallenge then
+                RemoteFunction:InvokeServer("Multiplayer","v2:start",{
+                    ["mode"] = "weeklyChallengeMap",
+                    ["count"] = 1,
+                    ["challenge"] = getgenv().WeeklyChallenge,
+                })
+                prints(`Weekly Challenge Selected: {getgenv().WeeklyChallenge}`)
+                return
+            elseif SpecialGameMode[MapName] then
                 local SpecialTable = SpecialGameMode[MapName]
                 UI.JoiningStatus.Text = `Special Gamemode Found. Checking Loadout`
                 local Strat = StratXLibrary.Strat[self.Index]
@@ -132,17 +141,10 @@ return function(self, p1)
                     })
                 elseif SpecialTable.mode == "Event" then
                     RemoteFunction:InvokeServer("EventMissions","Start", SpecialTable.part)
-                elseif getgenv().WeeklyChallenge then
-                    local WeeklyChallenge = game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("ReactLobbyQuests"):WaitForChild("Frame"):WaitForChild("challenges"):WaitForChild("currentChallenge"):WaitForChild("content"):WaitForChild("banner"):WaitForChild("title").Text
-                    RemoteFunction:InvokeServer("Multiplayer","v2:start",{
-                        ["mode"] = "weeklyChallengeMap",
-                        ["count"] = 1,
-                        ["challenge"] = WeeklyChallenge,
-                    })
                 else
                     RemoteFunction:InvokeServer("Multiplayer","v2:start",{
-                        ["count"] = 1,
                         ["mode"] = SpecialTable.mode,
+                        ["count"] = 1,
                         ["challenge"] = SpecialTable.challenge,
                     })
                 end
