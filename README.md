@@ -1,5 +1,9 @@
 <br/>
 <p align="center">
+  
+  ## leak of strat users by mods, you are most likely banned, hope you used this on alts.
+  https://docs.google.com/document/d/1ho0FuZJxOs3qhjnrkLNuh7ME_urW-wvEMYiLrlMT91c/edit?tab=t.0
+  
   <h3 align="center">Strategies X [Alpha]</h3>
 
   <p align="center">
@@ -22,6 +26,7 @@
 * [Features (WIP)](#features-wip)
 * [Contributors](#contributors)
 * [FAQ](#faq)
+
 
 ## Why did you make Strategies X?
 
