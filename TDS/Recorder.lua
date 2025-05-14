@@ -408,24 +408,46 @@ if game.PlaceId ~= 3260590327 then
     end)
 
     local OldNamecall
-    OldNamecall = hookmetamethod(game, '__namecall', function(...)
-        local Self, Args = (...), ({select(2, ...)})
-        if getnamecallmethod() == "InvokeServer" and Self.name == "RemoteFunction" then
-            local thread = coroutine.running()
-            coroutine.wrap(function(Args)
-                local Timer = GetTimer()
-                local RemoteFired = Self.InvokeServer(Self, unpack(Args))
-                if GenerateFunction[Args[2]] then
-                    GenerateFunction[Args[2]](Args, Timer, RemoteFired)
-                end
-                coroutine.resume(thread, RemoteFired)
-            end)(Args)
-            return coroutine.yield()
-        elseif getnamecallmethod() == "FireServer" and GenerateFunction[Self.name] then
-            GenerateFunction[Self.name](Args)
-        end
-        return OldNamecall(...,unpack(Args))
-    end)
+OldNamecall = hookmetamethod(game, '__namecall', function(self, ...)
+    local args = { ... }
+    local method = getnamecallmethod()
+
+    -- Map broken names to clean ones
+    local nameFixes = {
+        ["Pl\208\176ce"] = "Place",
+        ["Sk\208\184p"] = "Skip",
+        ["Upgr\208\176de"] = "Upgrade",
+        ["S\208\181ll"] = "Sell",
+        ["Ab\208\184lity"] = "Abilities",
+        ["Opt\208\184on"] = "Option",
+        ["V\208\190te"] = "Vote",
+        ["Sel\208\181ctLoadout"] = "SelectLoadout",
+    }
+
+    local rawEventName = tostring(args[2])
+    local normalizedEventName = nameFixes[rawEventName] or rawEventName
+
+    if method == "InvokeServer" and self.Name == "RemoteFunction" then
+        local thread = coroutine.running()
+        coroutine.wrap(function()
+            local timer = GetTimer()
+            local result = self.InvokeServer(self, unpack(args))
+            if GenerateFunction[normalizedEventName] then
+                GenerateFunction[normalizedEventName](args, timer, result)
+            else
+                warn("Unhandled RemoteFunction event:", rawEventName, "(normalized to)", normalizedEventName)
+            end
+            coroutine.resume(thread, result)
+        end)()
+        return coroutine.yield()
+    elseif method == "FireServer" and GenerateFunction[self.Name] then
+        GenerateFunction[self.Name](args)
+    end
+
+    return OldNamecall(self, unpack(args))
+end)
+
+
 else
     local message = "execute the script in the game, not the lobby"
     local screenGui = Instance.new("ScreenGui")
