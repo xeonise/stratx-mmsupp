@@ -29,7 +29,7 @@ return function(self, p1)
                     if not TowersCheckHandler(v) then
                         return
                     end
-                    SoldCheck = RemoteFunction:InvokeServer("Troops","Sell",{
+                    SoldCheck = RemoteFunction:InvokeServer("Troops", "Sell", "Set", {
                         ["Troop"] = TowersContained[v].Instance
                     })
                     task.wait()
