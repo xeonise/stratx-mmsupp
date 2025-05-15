@@ -18,6 +18,7 @@ local TeleportService = game:GetService("TeleportService")
 return function(self, p1)
     local tableinfo = p1
     local TotalTowers = tableinfo
+    getgenv().totaltowers = tableinfo
     local GoldenTowers = tableinfo["Golden"] or {}
     local LoadoutProps = self.Loadout
     local AllowEquip = tableinfo["AllowEquip"] or false
