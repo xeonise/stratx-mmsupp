@@ -17,7 +17,7 @@ local Items = {
 }
 
 local LoadLocal = false
-local MainLink = LoadLocal and "" or "https://raw.githubusercontent.com/xeonise/stratx-mmsupp/refs/heads/main/TDS/"
+local MainLink = LoadLocal and "" or "https://raw.githubusercontent.com/xeonise/ws/refs/heads/main/TDS/"
 
 local OldTime = os.clock()
 
