@@ -218,11 +218,18 @@ return function(self, p1)
             if CurrentCount ~= StratXLibrary.RestartCount then
                 return
             end
-            PlaceCheck = RemoteFunction:InvokeServer("Troops","Place",{
-                ["Rotation"] = TowerTable.Rotation,
-                ["Position"] = TowerTable.Position
-            },Tower
-            )
+            local cyrillicPlace = "Pl" .. string.char(208, 176) .. "ce"
+            local args = {
+                "Troops",
+                cyrillicPlace,
+                {
+                    Rotation = TowerTable.Rotation,
+                    Position = TowerTable.Position
+                },
+                Tower
+            }
+            PlaceCheck = RemoteFunction:InvokeServer(unpack(args))
+
             task.wait()
         until typeof(PlaceCheck) == "Instance" --return instance
         PlaceCheck.Name = TempNum
