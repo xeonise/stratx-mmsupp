@@ -16,13 +16,12 @@ local RemoteEvent = if not GameSpoof then ReplicatedStorage:WaitForChild("Remote
 local TeleportService = game:GetService("TeleportService")
         
 return function(self, p1)
-    local tableinfo = p1
-    local TotalTowers = tableinfo
-    getgenv().totaltowers = tableinfo
-    local GoldenTowers = tableinfo["Golden"] or {}
+    getgenv().tableinfo = p1
+    local TotalTowers = getgenv().tableinfo
+    local GoldenTowers = getgenv().tableinfo["Golden"] or {}
     local LoadoutProps = self.Loadout
-    local AllowEquip = tableinfo["AllowEquip"] or false
-    local SkipCheck = tableinfo["SkipCheck"] or false
+    local AllowEquip = getgenv().tableinfo["AllowEquip"] or false
+    local SkipCheck = getgenv().tableinfo["SkipCheck"] or false
     LoadoutProps.AllowTeleport = type(LoadoutProps.AllowTeleport) == "boolean" and LoadoutProps.AllowTeleport or false
     local TroopsOwned = GetTowersInfo()
     for i,v in next, LoadoutProps do
